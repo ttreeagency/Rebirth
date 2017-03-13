@@ -22,29 +22,40 @@ class RebirthCommandController extends CommandController
 
     /**
      * List orphan documents
+     *
      * @param string $workspace
      * @param string $type
      */
     public function listCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
     {
-        $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
-
-        $this->outputLine();
-        $this->outputLine('<info>Found orphan node named in "%s" workspace with "%s" type ...</info>', [$workspace, $type]);
-        $this->outputLine();
-
-        $nodes->map(function (NodeInterface $node) {
-            $this->output->outputLine('<comment>%s</comment> (%s) in <b>%s</b>', [$node->getLabel(), $node->getNodeType(), $node->getPath()]);
-            $this->orphanNodeService->restore($node);
-        });
-        $this->outputLine('<b>Processed nodes:</b> %d', [$nodes->count()]);
+        $this->command($workspace, $type, false);
     }
 
     /**
      * Restore orphan document
+     *
+     * @param string $workspace
+     * @param string $type
      */
-    public function restoreCommand()
+    public function restoreCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
     {
+        $this->command($workspace, $type, true);
+    }
 
+    /**
+     * @param string $workspace
+     * @param string $type
+     * @param bool $restore
+     */
+    protected function command($workspace, $type, $restore = false)
+    {
+        $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
+        $nodes->map(function (NodeInterface $node) use ($restore) {
+            $this->output->outputLine('<comment>%s</comment> (%s) in <b>%s</b>', [$node->getLabel(), $node->getNodeType(), $node->getPath()]);
+            if ($restore) {
+                $this->orphanNodeService->restore($node);
+            }
+        });
+        $this->outputLine('<b>Processed nodes:</b> %d', [$nodes->count()]);
     }
 }
