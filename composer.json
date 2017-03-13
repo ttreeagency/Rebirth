@@ -3,7 +3,7 @@
     "name": "ttree/rebirth",
     "type": "neos-package",
     "require": {
-        "typo3/typo3cr": "^2.0.0"
+        "typo3/neos": "^2.2.0"
     },
     "autoload": {
         "psr-0": {
