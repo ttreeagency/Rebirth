@@ -7,6 +7,7 @@ namespace Ttree\Rebirth\Command;
  * (c) Contributors of the Neos Project - www.neos.io
  */
 
+use Closure;
 use Ttree\Rebirth\Service\OrphanNodeService;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Cli\CommandController;
@@ -29,7 +30,24 @@ class RebirthCommandController extends CommandController
      */
     public function listCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
     {
-        $this->command($workspace, $type, false);
+        $this->command(function (NodeInterface $node) {
+            $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
+        }, $workspace, $type, false);
+    }
+
+    /**
+     * List orphan documents
+     *
+     * @param string $workspace
+     * @param string $type
+     */
+    public function pruneCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
+    {
+        $this->command(function (NodeInterface $node) {
+            $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
+            $node->remove();
+            $this->outputLine('  <info>Done, node removed</info>');
+        }, $workspace, $type, false);
     }
 
     /**
@@ -41,19 +59,7 @@ class RebirthCommandController extends CommandController
      */
     public function restoreCommand($workspace = 'live', $type = 'TYPO3.Neos:Document', $target = null)
     {
-        $this->command($workspace, $type, true, $target);
-    }
-
-    /**
-     * @param string $workspace
-     * @param string $type
-     * @param bool $restore
-     * @param string $targetIdentifier
-     */
-    protected function command($workspace, $type, $restore = false, $targetIdentifier = null)
-    {
-        $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
-        $nodes->map(function (NodeInterface $node) use ($restore, $targetIdentifier) {
+        $this->command(function (NodeInterface $node, $restore, $targetIdentifier) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
             if ($restore) {
                 try {
@@ -66,6 +72,21 @@ class RebirthCommandController extends CommandController
                     return;
                 }
             }
+        }, $workspace, $type, true, $target);
+    }
+
+    /**
+     * @param Closure $func
+     * @param string $workspace
+     * @param string $type
+     * @param bool $restore
+     * @param string $targetIdentifier
+     */
+    protected function command(Closure $func, $workspace, $type, $restore = false, $targetIdentifier = null)
+    {
+        $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
+        $nodes->map(function (NodeInterface $node) use ($func, $restore, $targetIdentifier) {
+            $func($node, $restore, $targetIdentifier);
         });
 
         if ($nodes->count()) {

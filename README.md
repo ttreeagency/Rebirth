@@ -33,6 +33,14 @@ CLI commands
 
     flow rebirth:restore --target f34f834b-c36b-43eb-a580-f0e2f168b241
 
+## Prune all orphaned document nodes
+
+    flow rebirth:prune
+
+## Prune all orphaned document nodes for a specific type
+
+    flow rebirth:list --type TYPO3.Neos:Document
+    
 Acknowledgments
 ---------------
 
