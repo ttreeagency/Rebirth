@@ -2,6 +2,12 @@
     "description": "Neos Content Repository Helper to rebirth orphaned nodes",
     "name": "ttree/rebirth",
     "type": "neos-package",
+    "license": "MIT",
+    "keywords": [
+        "neos",
+        "neos content repository",
+        "maintenance"
+    ],
     "require": {
         "typo3/neos": "^2.2.0"
     },

@@ -2,6 +2,8 @@
 
 This package can help you to move orphaned node in the Neos Content Repository.
 
+*Warning* Working with broken / orphaned nodes can be hard, please backup your data before using this package.
+
 _Currently this package support only document nodes restauration_
 
 How to use ?
