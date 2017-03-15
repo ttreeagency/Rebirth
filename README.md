@@ -7,16 +7,31 @@ _Currently this package support only document nodes restauration_
 How to use ?
 ------------
 
-- For each Site where you want to restore orphaned nodes, you must create a "Trash" node. This will be used as the target for document node restoration.
+- Optional: For each Site where you want to restore orphaned nodes, you must create a "Trash" node. This will be used as the target for document node restoration.
 - Go to the CLI and run the restore command
 
 CLI commands
 ------------
 
-You can ```list``` or ```restore``` orphaned document node with the following commands:
+## List the current orphaned document nodes
 
     flow rebirth:list
+
+## List the current orphaned nodes for a specific type
+
+    flow rebirth:list --type TYPO3.Neos:Document
+    
+## Restore everything under the "Trash" node of the current site
+
     flow rebirth:restore
+
+## Restore everything under the "Trash" node of the current site, only for the given type
+
+    flow rebirth:restore --type TYPO3.Neos:Document
+    
+## Restore everything under the given target node
+
+    flow rebirth:restore --target f34f834b-c36b-43eb-a580-f0e2f168b241
 
 Acknowledgments
 ---------------

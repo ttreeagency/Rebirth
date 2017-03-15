@@ -67,12 +67,45 @@ class OrphanNodeService
 
     /**
      * @param NodeInterface $node
+     * @param NodeInterface $target
+     */
+    public function restore(NodeInterface $node, NodeInterface $target)
+    {
+        $node->moveInto($target);
+    }
+
+    /**
+     * @param NodeInterface $node
+     * @param null $targetIdentifier
+     * @return NodeInterface
      * @throws NodeNotFoundException
      */
-    public function restore(NodeInterface $node)
+    public function target(NodeInterface $node, $targetIdentifier = null)
     {
-        $targetNode = $this->restoreTarger($node);
-        $node->moveInto($targetNode);
+        if ($targetIdentifier === null) {
+            return $this->resolveTargetInCurrentSite($node);
+        }
+        $context = $node->getContext();
+        $targetNode = $context->getNodeByIdentifier($targetIdentifier);
+        $this->isValidTargetNode($targetNode, $targetIdentifier);
+        return $targetNode;
+    }
+
+    /**
+     * @param NodeInterface $targetNode
+     * @param string $expectedIdentifier
+     * @return NodeInterface
+     * @throws NodeNotFoundException
+     */
+    protected function isValidTargetNode(NodeInterface $targetNode, $expectedIdentifier)
+    {
+        if ($targetNode === null) {
+            throw new NodeNotFoundException(vsprintf('The given target node is not found (%s)', [$expectedIdentifier]), 1489566677);
+        }
+        if (!$targetNode->getNodeType()->isOfType('TYPO3.Neos:Document')) {
+            throw new NodeNotFoundException(vsprintf('Target node must a of type TYPO3.Neos:Document (current type: %s)', [$targetNode->getNodeType()]), 1489566677);
+        }
+        return $targetNode;
     }
 
     /**
@@ -113,7 +146,7 @@ class OrphanNodeService
      * @return NodeInterface
      * @throws NodeNotFoundException
      */
-    protected function restoreTarger(NodeInterface $node)
+    protected function resolveTargetInCurrentSite(NodeInterface $node)
     {
         $siteNode = $this->siteNode($node);
         $childNodes = $siteNode->getChildNodes('Ttree.Rebirth:Trash', 1);

@@ -10,6 +10,7 @@ namespace Ttree\Rebirth\Command;
 use Ttree\Rebirth\Service\OrphanNodeService;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Cli\CommandController;
+use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 
 class RebirthCommandController extends CommandController
@@ -36,26 +37,41 @@ class RebirthCommandController extends CommandController
      *
      * @param string $workspace
      * @param string $type
+     * @param string $target
      */
-    public function restoreCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
+    public function restoreCommand($workspace = 'live', $type = 'TYPO3.Neos:Document', $target = null)
     {
-        $this->command($workspace, $type, true);
+        $this->command($workspace, $type, true, $target);
     }
 
     /**
      * @param string $workspace
      * @param string $type
      * @param bool $restore
+     * @param string $targetIdentifier
      */
-    protected function command($workspace, $type, $restore = false)
+    protected function command($workspace, $type, $restore = false, $targetIdentifier = null)
     {
         $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
-        $nodes->map(function (NodeInterface $node) use ($restore) {
-            $this->output->outputLine('<comment>%s</comment> (%s) in <b>%s</b>', [$node->getLabel(), $node->getNodeType(), $node->getPath()]);
+        $nodes->map(function (NodeInterface $node) use ($restore, $targetIdentifier) {
+            $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
             if ($restore) {
-                $this->orphanNodeService->restore($node);
+                try {
+                    $target = $this->orphanNodeService->target($node, $targetIdentifier);
+                    $this->outputLine('  <info>Restore to %s (%s)</info>', [$node->getPath(), $node->getIdentifier()]);
+                    $this->orphanNodeService->restore($node, $target);
+                    $this->outputLine('  <info>Done, check your node at "%s"</info>', [$node->getPath()]);
+                } catch (NodeNotFoundException $exception) {
+                    $this->outputLine('  <error>Missing restoration target for the current node</error>');
+                    return;
+                }
             }
         });
-        $this->outputLine('<b>Processed nodes:</b> %d', [$nodes->count()]);
+
+        if ($nodes->count()) {
+            $this->outputLine('<b>Processed nodes:</b> %d', [$nodes->count()]);
+        } else {
+            $this->outputLine('<b>No orphaned document nodes</b>');
+        }
     }
 }
