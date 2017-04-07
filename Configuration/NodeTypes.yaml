@@ -2,7 +2,7 @@
 
 'Ttree.Rebirth:Trash':
   superTypes:
-    'TYPO3.Neos:Shortcut': true
+    'Neos.Neos:Shortcut': true
   ui:
     label: Trash
     icon: icon-trash

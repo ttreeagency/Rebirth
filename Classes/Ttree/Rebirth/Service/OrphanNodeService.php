@@ -12,9 +12,9 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Neos\Flow\Annotations as Flow;
-use TYPO3\Neos\Controller\CreateContentContextTrait;
-use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
-use TYPO3\Neos\Domain\Service\ContentContext;
+use Neos\Neos\Controller\CreateContentContextTrait;
+use Neos\Neos\Controller\Exception\NodeNotFoundException;
+use Neos\Neos\Domain\Service\ContentContext;
 use TYPO3\TYPO3CR\Domain\Factory\NodeFactory;
 use TYPO3\TYPO3CR\Domain\Model\NodeData;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
@@ -51,7 +51,7 @@ class OrphanNodeService
      * @param string $type
      * @return ArrayCollection
      */
-    public function listByWorkspace($workspaceName, $type = 'TYPO3.Neos:Document')
+    public function listByWorkspace($workspaceName, $type = 'Neos.Neos:Document')
     {
         $nodes = $this->nodeDataByWorkspace($workspaceName);
 
@@ -102,8 +102,8 @@ class OrphanNodeService
         if ($targetNode === null) {
             throw new NodeNotFoundException(vsprintf('The given target node is not found (%s)', [$expectedIdentifier]), 1489566677);
         }
-        if (!$targetNode->getNodeType()->isOfType('TYPO3.Neos:Document')) {
-            throw new NodeNotFoundException(vsprintf('Target node must a of type TYPO3.Neos:Document (current type: %s)', [$targetNode->getNodeType()]), 1489566677);
+        if (!$targetNode->getNodeType()->isOfType('Neos.Neos:Document')) {
+            throw new NodeNotFoundException(vsprintf('Target node must a of type Neos.Neos:Document (current type: %s)', [$targetNode->getNodeType()]), 1489566677);
         }
         return $targetNode;
     }

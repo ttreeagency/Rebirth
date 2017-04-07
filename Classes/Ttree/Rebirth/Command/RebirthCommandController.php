@@ -11,7 +11,7 @@ use Closure;
 use Ttree\Rebirth\Service\OrphanNodeService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
-use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
+use Neos\Neos\Controller\Exception\NodeNotFoundException;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 
 class RebirthCommandController extends CommandController
@@ -28,7 +28,7 @@ class RebirthCommandController extends CommandController
      * @param string $workspace
      * @param string $type
      */
-    public function listCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
+    public function listCommand($workspace = 'live', $type = 'Neos.Neos:Document')
     {
         $this->command(function (NodeInterface $node) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
@@ -41,7 +41,7 @@ class RebirthCommandController extends CommandController
      * @param string $workspace
      * @param string $type
      */
-    public function pruneCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
+    public function pruneCommand($workspace = 'live', $type = 'Neos.Neos:Document')
     {
         $this->command(function (NodeInterface $node) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
@@ -57,7 +57,7 @@ class RebirthCommandController extends CommandController
      * @param string $type
      * @param string $target
      */
-    public function restoreCommand($workspace = 'live', $type = 'TYPO3.Neos:Document', $target = null)
+    public function restoreCommand($workspace = 'live', $type = 'Neos.Neos:Document', $target = null)
     {
         $this->command(function (NodeInterface $node, $restore, $targetIdentifier) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
