@@ -9,8 +9,8 @@ namespace Ttree\Rebirth\Command;
 
 use Closure;
 use Ttree\Rebirth\Service\OrphanNodeService;
-use TYPO3\Flow\Annotations as Flow;
-use TYPO3\Flow\Cli\CommandController;
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Cli\CommandController;
 use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 

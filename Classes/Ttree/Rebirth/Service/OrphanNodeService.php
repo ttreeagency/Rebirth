@@ -11,7 +11,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
-use TYPO3\Flow\Annotations as Flow;
+use Neos\Flow\Annotations as Flow;
 use TYPO3\Neos\Controller\CreateContentContextTrait;
 use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
 use TYPO3\Neos\Domain\Service\ContentContext;
