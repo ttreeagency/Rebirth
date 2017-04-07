@@ -1,24 +1,25 @@
 # Trash
+
 'Ttree.Rebirth:Trash':
   superTypes:
-    'TYPO3.Neos:Shortcut': TRUE
+    'TYPO3.Neos:Shortcut': '1'
   ui:
-    label: 'Trash'
-    icon: 'icon-trash'
+    label: Trash
+    icon: icon-trash
   constraints:
     nodeTypes:
-      'Ttree.ArchitectesCh:Activity': FALSE
-      'Ttree.ArchitectesCh:ReferenceActivity': TRUE
-      '*': FALSE
+      'Ttree.ArchitectesCh:Activity': false
+      'Ttree.ArchitectesCh:ReferenceActivity': true
+      '*': false
   properties:
     targetMode:
       type: string
-      defaultValue: 'parentNode'
+      defaultValue: parentNode
       ui:
         inspector:
-          group: ~
+          group: null
     target:
-      type: 'string'
+      type: string
       ui:
         inspector:
-          group: ~
+          group: null
