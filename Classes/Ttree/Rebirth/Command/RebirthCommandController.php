@@ -12,7 +12,7 @@ use Ttree\Rebirth\Service\OrphanNodeService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
 use Neos\Neos\Controller\Exception\NodeNotFoundException;
-use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
+use Neos\ContentRepository\Domain\Model\NodeInterface;
 
 class RebirthCommandController extends CommandController
 {
