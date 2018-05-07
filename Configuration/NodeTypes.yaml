@@ -10,6 +10,8 @@
     nodeTypes:
       '*': false
   properties:
+    _hidden:
+      defaultValue: true
     targetMode:
       type: string
       defaultValue: parentNode
