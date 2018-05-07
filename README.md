@@ -2,15 +2,17 @@
 
 This package can help you to move orphaned node in the Neos Content Repository.
 
-*Warning* Working with broken / orphaned nodes can be hard, please backup your data before using this package.
+*Warning*: Working with broken / orphaned nodes can be hard, please backup your data before using this package.
 
-_Currently this package support only document nodes restauration_
+_Currently this package supports only document nodes restoration._ That means you can only restore documents
+including their content (and further children), but not only content that has been orphaned.
 
 How to use ?
 ------------
 
-- Optional: For each Site where you want to restore orphaned nodes, you must create a "Trash" node. This will be used as the target for document node restoration.
-- Go to the CLI and run the restore command
+- Optional: For each site where you want to restore orphaned nodes, you can create a "Trash" node. This can be
+  used as the automatically detected target for document node restoration.
+- Go to the CLI and run the restore command.
 
 CLI commands
 ------------
@@ -21,15 +23,18 @@ CLI commands
 
 ## List the current orphaned nodes for a specific type
 
-    flow rebirth:list --type TYPO3.Neos:Document
+    flow rebirth:list --type Neos.Neos:Document
     
 ## Restore everything under the "Trash" node of the current site
 
     flow rebirth:restore
 
+*Note*: if you have no Trash node, this will fail with the message *Missing restoration target for the current
+node*. Either create a Trash node or specify the target node using `--target`.
+
 ## Restore everything under the "Trash" node of the current site, only for the given type
 
-    flow rebirth:restore --type TYPO3.Neos:Document
+    flow rebirth:restore --type Neos.Neos:Document
     
 ## Restore everything under the given target node
 
@@ -41,8 +46,16 @@ CLI commands
 
 ## Prune all orphaned document nodes for a specific type
 
-    flow rebirth:list --type TYPO3.Neos:Document
-    
+    flow rebirth:list --type Neos.Neos:Document
+
+Troubleshooting
+---------------
+
+If you get the message *Missing restoration target for the current node* even though a Trash node has been
+created, make sure you have a Trash node matching the context of the nodes to be restored. Specifically check
+the content dimensions. You must have a Trash node that can be found in the same dimension value combination
+as the node to be restored.
+
 Acknowledgments
 ---------------
 
