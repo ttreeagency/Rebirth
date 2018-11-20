@@ -8,10 +8,10 @@
     icon: icon-trash
   constraints:
     nodeTypes:
-      'Ttree.ArchitectesCh:Activity': false
-      'Ttree.ArchitectesCh:ReferenceActivity': true
       '*': false
   properties:
+    _hidden:
+      defaultValue: true
     targetMode:
       type: string
       defaultValue: parentNode
