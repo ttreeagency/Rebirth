@@ -46,7 +46,7 @@ node*. Either create a Trash node or specify the target node using `--target`.
 
 ## Prune all orphaned document nodes for a specific type
 
-    flow rebirth:list --type Neos.Neos:Document
+    flow rebirth:prune --type Neos.Neos:Document
 
 Troubleshooting
 ---------------
