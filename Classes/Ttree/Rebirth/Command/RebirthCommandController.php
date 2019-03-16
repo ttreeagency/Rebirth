@@ -9,13 +9,17 @@ namespace Ttree\Rebirth\Command;
 
 use Closure;
 use Ttree\Rebirth\Service\OrphanNodeService;
+use TYPO3\Eel\FlowQuery\FlowQuery;
 use TYPO3\Flow\Annotations as Flow;
 use TYPO3\Flow\Cli\CommandController;
+use TYPO3\Neos\Controller\CreateContentContextTrait;
 use TYPO3\Neos\Controller\Exception\NodeNotFoundException;
 use TYPO3\TYPO3CR\Domain\Model\NodeInterface;
 
 class RebirthCommandController extends CommandController
 {
+    use CreateContentContextTrait;
+
     /**
      * @var OrphanNodeService
      * @Flow\Inject
@@ -30,8 +34,24 @@ class RebirthCommandController extends CommandController
      */
     public function listCommand($workspace = 'live', $type = 'TYPO3.Neos:Document')
     {
-        $this->command(function (NodeInterface $node) {
-            $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
+        $context = $this->createContentContext('live');
+
+        $log = function (NodeInterface $node, $leftPad = '') use ($context) {
+            $this->output->outputLine('');
+            $this->output->outputLine($leftPad . "<b>%s</b> (%s)", [$node->getLabel(), $node->getIdentifier()]);
+            $this->output->outputLine($leftPad . "%s in <info>%s</info>", [$node->getNodeType(), $node->getPath()]);
+        };
+
+        $showChildren = function (NodeInterface $parentNode, $leftPad = '') use (&$showChildren, $log) {
+            $query = (new FlowQuery([$parentNode]))->children('[instanceof TYPO3.Neos:Document]')->get();
+            foreach ($query as $children) {
+                $log($children, $leftPad);
+            }
+        };
+
+        $this->command(function (NodeInterface $node) use ($log, $showChildren) {
+            $log($node);
+            $showChildren($node, '    ');
         }, $workspace, $type, false);
     }
 
@@ -73,6 +93,39 @@ class RebirthCommandController extends CommandController
                 }
             }
         }, $workspace, $type, true, $target);
+    }
+
+    /**
+     * @param string $parentPath Previous parent path
+     * @param string $target Node identifier of the target node
+     * @param string $type Node type
+     * @param string $workspace Current workspace
+     * @throws \TYPO3\Flow\Mvc\Exception\StopActionException
+     */
+    public function restoreByParentPathCommand($parentPath, $target, $workspace = 'live', $type = 'TYPO3.Neos:Document')
+    {
+        $context = $this->createContentContext('live');
+        $targetNode = $context->getNodeByIdentifier($target);
+        if (!$targetNode instanceof NodeInterface) {
+            $this->outputLine('Missing target node');
+            $this->quit(1);
+        }
+
+        $this->outputLine();
+        $this->outputLine('<b>Restore orphaned nodes to "%s" (%s)</b>', [$targetNode->getLabel(), $targetNode->getNodeType()]);
+        $this->outputLine('New parent path: <info>%s</info>', [$targetNode->getPath()]);
+        $this->outputLine();
+
+        $this->command(function (NodeInterface $node) use ($parentPath, $targetNode) {
+            if ($node->getParentPath() !== $parentPath) {
+                return;
+            }
+            $this->outputLine();
+            $this->outputLine('Restore <info>%s</info>...', [$node->getLabel()]);
+            if ($this->output->askConfirmation('Do you want to restore the current node? [<b>y</b>|n]')) {
+                $this->orphanNodeService->restore($node, $targetNode);
+            }
+        }, $workspace, $type, false);
     }
 
     /**
