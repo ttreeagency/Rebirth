@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Ttree\Rebirth\Command;
 
 /*
@@ -28,7 +30,7 @@ class RebirthCommandController extends CommandController
      * @param string $workspace
      * @param string $type
      */
-    public function listCommand($workspace = 'live', $type = 'Neos.Neos:Document')
+    public function listCommand(string $workspace = 'live', string $type = 'Neos.Neos:Document'): void
     {
         $this->command(function (NodeInterface $node) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
@@ -57,7 +59,7 @@ class RebirthCommandController extends CommandController
      * @param string $type
      * @param string $target
      */
-    public function restoreCommand($workspace = 'live', $type = 'Neos.Neos:Document', $target = null)
+    public function restoreCommand($workspace = 'live', $type = 'Neos.Neos:Document', $target = null): void
     {
         $this->command(function (NodeInterface $node, $restore, $targetIdentifier) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
