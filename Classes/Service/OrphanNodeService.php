@@ -115,7 +115,7 @@ class OrphanNodeService
      * @param string $workspaceName
      * @return ArrayCollection
      */
-    protected function nodeDataByWorkspace($workspaceName)
+    protected function nodeDataByWorkspace(string $workspaceName): ArrayCollection
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -135,12 +135,19 @@ class OrphanNodeService
                 NodeData::class,
                 'n2',
                 Join::WITH,
-                'n.parentPathHash = n2.pathHash AND n2.workspace IN (:workspaceList)'
+                'n.parentPathHash = n2.pathHash AND n2.workspace IN (:workspaceList) AND (n.dimensionsHash = n2.dimensionsHash OR n2.dimensionsHash = :dimensionLess)'
             )
             ->where('n2.path IS NULL')
             ->andWhere($queryBuilder->expr()->not('n.path = :slash'))
             ->andWhere('n.workspace = :workspace')
-            ->setParameters(['workspaceList' => $workspaceList, 'slash' => '/', 'workspace' => $workspaceName])
+            ->setParameters([
+                'workspaceList' => $workspaceList,
+                'slash' => '/',
+                'workspace' => $workspaceName,
+                'dimensionLess' => 'd751713988987e9331980363e24189ce'
+            ])
+            ->orderBy('n.dimensionsHash')
+            ->addOrderBy('n.path')
             ->getQuery()->getResult());
     }
 

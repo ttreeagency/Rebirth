@@ -10,6 +10,7 @@ namespace Ttree\Rebirth\Command;
  */
 
 use Closure;
+use Doctrine\Common\Collections\ArrayCollection;
 use Ttree\Rebirth\Service\OrphanNodeService;
 use Neos\Flow\Annotations as Flow;
 use Neos\Flow\Cli\CommandController;
@@ -32,18 +33,32 @@ class RebirthCommandController extends CommandController
      */
     public function listCommand(string $workspace = 'live', string $type = 'Neos.Neos:Document'): void
     {
-        $this->command(function (NodeInterface $node) {
-            $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
-        }, $workspace, $type, false);
+        $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
+
+        $this->output->outputTable(
+            array_map(static function (array $nodeInfo) {
+                $nodeInfo['info'] = sprintf('Label: %s%sPath: %s' . PHP_EOL, $nodeInfo['label'], PHP_EOL, $nodeInfo['path']);
+                $nodeInfo['dimension'] = str_replace(',', PHP_EOL, $nodeInfo['dimension']);
+                unset($nodeInfo['label'], $nodeInfo['path']);
+                return $nodeInfo;
+            }, $this->convertNodesToNodeInfo($nodes)),
+            ['Site', 'Dimension', 'Identifier', 'Node Type', 'Info']
+        );
+
+        if (count($nodes)) {
+            $this->outputLine('<b>Found nodes:</b> %d', [count($nodes)]);
+        } else {
+            $this->outputLine('<b>No orphaned document nodes</b>');
+        }
     }
 
     /**
-     * List orphan documents
+     * Prune orphan documents
      *
      * @param string $workspace
      * @param string $type
      */
-    public function pruneCommand($workspace = 'live', $type = 'Neos.Neos:Document')
+    public function pruneAllCommand($workspace = 'live', $type = 'Neos.Neos:Document'): void
     {
         $this->command(function (NodeInterface $node) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
@@ -53,13 +68,13 @@ class RebirthCommandController extends CommandController
     }
 
     /**
-     * Restore orphan document
+     * Restore orphan documents
      *
      * @param string $workspace
      * @param string $type
      * @param string $target
      */
-    public function restoreCommand($workspace = 'live', $type = 'Neos.Neos:Document', $target = null): void
+    public function restoreAllCommand($workspace = 'live', $type = 'Neos.Neos:Document', $target = null): void
     {
         $this->command(function (NodeInterface $node, $restore, $targetIdentifier) {
             $this->output->outputLine('%s <comment>%s</comment> (%s) in <b>%s</b>', [$node->getIdentifier(), $node->getLabel(), $node->getNodeType(), $node->getPath()]);
@@ -84,7 +99,7 @@ class RebirthCommandController extends CommandController
      * @param bool $restore
      * @param string $targetIdentifier
      */
-    protected function command(Closure $func, $workspace, $type, $restore = false, $targetIdentifier = null)
+    protected function command(Closure $func, $workspace, $type, $restore = false, $targetIdentifier = null): void
     {
         $nodes = $this->orphanNodeService->listByWorkspace($workspace, $type);
         $nodes->map(function (NodeInterface $node) use ($func, $restore, $targetIdentifier) {
@@ -96,5 +111,19 @@ class RebirthCommandController extends CommandController
         } else {
             $this->outputLine('<b>No orphaned document nodes</b>');
         }
+    }
+
+    protected function convertNodesToNodeInfo(ArrayCollection $nodes): array
+    {
+        return $nodes->map(function (NodeInterface $node) {
+            return [
+                'site' => $node->getContext()->getCurrentSite()->getName(),
+                'dimension' => str_replace(['{', '}', '[', ']', '"'], '', json_encode($node->getContext()->getDimensions(), JSON_THROW_ON_ERROR)),
+                'identifier' => $node->getIdentifier(),
+                'nodeType' => $node->getNodeType(),
+                'label' => $node->getLabel(),
+                'path' => $node->getPath(),
+            ];
+        })->toArray();
     }
 }

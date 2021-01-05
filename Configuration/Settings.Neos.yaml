@@ -1,0 +1,10 @@
+Neos:
+  Neos:
+    fusion:
+      autoInclude:
+        'Ttree.Rebirth': true
+    userInterface:
+      translation:
+        autoInclude:
+          'Ttree.Rebirth':
+            - 'NodeTypes/*'
