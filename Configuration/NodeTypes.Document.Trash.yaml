@@ -5,7 +5,6 @@
   ui:
     label: Trash
     icon: fas fa-recycle
-    group: system
 
   constraints:
     nodeTypes:
