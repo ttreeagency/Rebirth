@@ -1,0 +1,31 @@
+prototype(Ttree.Rebirth:Trash) < prototype(Neos.Fusion:Component) {
+
+    renderer = Neos.Neos:Page {
+        head {
+            stylesheets.backend = Neos.Fusion:Tag {
+                tagName = 'link'
+                attributes {
+                    href = Neos.Fusion:ResourceUri {
+                        path = 'resource://Neos.Neos/Public/Styles/Lite.css'
+                    }
+                    type = 'text/css'
+                    rel = 'stylesheet'
+                }
+            }
+        }
+
+        bodyTag.attributes.class = 'neos neos-module'
+
+        body = Neos.Fusion:Component {
+            renderer = afx`
+                <main class="neos-module-wrap">
+                    <legend>Orphan Nodes</legend>
+                    <p>Nodes underneath this documents have previously been disconnected from the root of the document tree and have been restored to this location.</p>
+                    <p>Please move the documents to a suitable position or delete them.</p>
+                </main>
+            `
+        }
+    }
+}
+
+

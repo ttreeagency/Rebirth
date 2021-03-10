@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Ttree\Rebirth\Service;
 
 /*
@@ -8,7 +10,7 @@ namespace Ttree\Rebirth\Service;
  */
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Neos\Flow\Annotations as Flow;
@@ -29,8 +31,8 @@ class OrphanNodeService
     use CreateContentContextTrait;
 
     /**
-     * @var ObjectManager
      * @Flow\Inject
+     * @var EntityManagerInterface
      */
     protected $entityManager;
 
@@ -46,12 +48,13 @@ class OrphanNodeService
      */
     protected $nodeFactory;
 
+
     /**
      * @param string $workspaceName
      * @param string $type
      * @return ArrayCollection
      */
-    public function listByWorkspace($workspaceName, $type = 'Neos.Neos:Document')
+    public function listByWorkspace(string $workspaceName, $type = 'Neos.Neos:Document'): ArrayCollection
     {
         $nodes = $this->nodeDataByWorkspace($workspaceName);
 
@@ -69,7 +72,7 @@ class OrphanNodeService
      * @param NodeInterface $node
      * @param NodeInterface $target
      */
-    public function restore(NodeInterface $node, NodeInterface $target)
+    public function restore(NodeInterface $node, NodeInterface $target): void
     {
         $node->moveInto($target);
     }
@@ -80,7 +83,7 @@ class OrphanNodeService
      * @return NodeInterface
      * @throws NodeNotFoundException
      */
-    public function target(NodeInterface $node, $targetIdentifier = null)
+    public function target(NodeInterface $node, $targetIdentifier = null): NodeInterface
     {
         if ($targetIdentifier === null) {
             return $this->resolveTargetInCurrentSite($node);
@@ -112,7 +115,7 @@ class OrphanNodeService
      * @param string $workspaceName
      * @return ArrayCollection
      */
-    protected function nodeDataByWorkspace($workspaceName)
+    protected function nodeDataByWorkspace(string $workspaceName): ArrayCollection
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $this->entityManager->createQueryBuilder();
@@ -132,12 +135,19 @@ class OrphanNodeService
                 NodeData::class,
                 'n2',
                 Join::WITH,
-                'n.parentPathHash = n2.pathHash AND n2.workspace IN (:workspaceList)'
+                'n.parentPathHash = n2.pathHash AND n2.workspace IN (:workspaceList) AND (n.dimensionsHash = n2.dimensionsHash OR n2.dimensionsHash = :dimensionLess)'
             )
             ->where('n2.path IS NULL')
             ->andWhere($queryBuilder->expr()->not('n.path = :slash'))
             ->andWhere('n.workspace = :workspace')
-            ->setParameters(['workspaceList' => $workspaceList, 'slash' => '/', 'workspace' => $workspaceName])
+            ->setParameters([
+                'workspaceList' => $workspaceList,
+                'slash' => '/',
+                'workspace' => $workspaceName,
+                'dimensionLess' => 'd751713988987e9331980363e24189ce'
+            ])
+            ->orderBy('n.dimensionsHash')
+            ->addOrderBy('n.path')
             ->getQuery()->getResult());
     }
 

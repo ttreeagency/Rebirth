@@ -1,23 +1,26 @@
-# Trash
-
 'Ttree.Rebirth:Trash':
   superTypes:
-    'Neos.Neos:Shortcut': true
+    'Neos.Neos:Document': true
+
   ui:
     label: Trash
-    icon: icon-trash
+    icon: fas fa-recycle
+
   constraints:
     nodeTypes:
       '*': false
+
   properties:
     _hidden:
       defaultValue: true
+
     targetMode:
       type: string
       defaultValue: parentNode
       ui:
         inspector:
           group: null
+
     target:
       type: string
       ui:
